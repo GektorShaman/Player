@@ -5,14 +5,15 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RegistrationAdapter (private val regDataset: List<String>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class RegistrationAdapter (private val regDataset: List<String>,private val footerClick: (View, Int, Int)->Unit, val itemCheck:()->Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    val regDataQuantity: Int = 4
+    private val regDataQuantity: Int = 4
 
     override fun getItemViewType(position: Int): Int {
         if (isPositionHeader(position)) {
@@ -29,6 +30,13 @@ class RegistrationAdapter (private val regDataset: List<String>) : RecyclerView.
 
     private fun isPositionFooter(position: Int): Boolean {
         return position > regDataset.size-2
+    }
+
+    private fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, type: Int) -> Unit): T {
+        itemView.setOnClickListener {
+            event.invoke(it, getAdapterPosition(), itemViewType)
+        }
+        return this
     }
 
 
@@ -61,14 +69,18 @@ class RegistrationAdapter (private val regDataset: List<String>) : RecyclerView.
                 holder.loggingRadioButton?.isChecked = false
                 holder.regRadioButton?.setTextColor(Color.parseColor("#ffffff"))
                 holder.regRadioButton?.setBackgroundColor(Color.parseColor("#0000ff"))
+                holder.regRadioButton?.setOnCheckedChangeListener(holder)
             }
             else {
                 holder.loggingRadioButton?.isChecked = true
                 holder.regRadioButton?.isChecked = false
+                holder.loggingRadioButton?.setTextColor(Color.parseColor("#ffffff"))
+                holder.loggingRadioButton?.setBackgroundColor(Color.parseColor("#0000ff"))
+                holder.loggingRadioButton?.setOnCheckedChangeListener(holder)
             }
 
         } else if (holder is ItemViewHolder) {
-            holder.editTextView?.setHint(regDataset[position])
+            holder.editTextView?.hint = regDataset[position]
             if (regDataset.size>regDataQuantity) {
                 when (position) {
                     2 -> holder.editTextView?.inputType =
@@ -85,6 +97,7 @@ class RegistrationAdapter (private val regDataset: List<String>) : RecyclerView.
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
 
         } else if (holder is FooterViewHolder) {
+            holder.onClick(footerClick)
             holder.footerTextView?.text=regDataset[position]
             holder.footerTextView?.setTextColor(Color.parseColor("#0000ff"))
         }
@@ -97,13 +110,18 @@ class RegistrationAdapter (private val regDataset: List<String>) : RecyclerView.
     }
 
 
-    inner class HeaderViewHolder (itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class HeaderViewHolder (itemView: View) : RecyclerView.ViewHolder(itemView)
+        ,CompoundButton.OnCheckedChangeListener{
         var loggingRadioButton: RadioButton? = null
         var regRadioButton: RadioButton? = null
 
         init {
             loggingRadioButton= itemView.findViewById(R.id.log)
             regRadioButton= itemView.findViewById(R.id.reg)
+        }
+
+        override fun onCheckedChanged(p0: CompoundButton?, p1: Boolean) {
+            itemCheck()
         }
     }
 
