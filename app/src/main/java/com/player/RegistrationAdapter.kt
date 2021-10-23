@@ -1,5 +1,7 @@
 package com.player
 
+import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
 import android.text.Editable
 import android.text.InputType
@@ -12,10 +14,13 @@ import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.recyclerview.widget.RecyclerView
 import java.util.ArrayList
+import kotlin.coroutines.coroutineContext
 
-class RegistrationAdapter (private val regDataset: List<String>,private val footerClick: (View, Int, Int)->Unit, val itemCheck:()->Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class RegistrationAdapter (val context: Context, private val regDataset: List<String>, private val footerClick: (Int, String, String)->Unit, val itemCheck:()->Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val validateList: ArrayList<EditText?> = ArrayList<EditText?>()
     private val regDataQuantity: Int = 4
@@ -37,12 +42,12 @@ class RegistrationAdapter (private val regDataset: List<String>,private val foot
         return position > regDataset.size-2
     }
 
-    private fun <T : RecyclerView.ViewHolder> T.onClick(event: (view: View, position: Int, type: Int) -> Unit): T {
+    private fun <T : RecyclerView.ViewHolder> T.onClick(event: (type: Int,userLogin:String,userPassword:String) -> Unit): T {
         itemView.setOnClickListener {
             if (validateList.size > 2)  {
-                if (isValidRegistration()) event.invoke(it, getAdapterPosition(), itemViewType)
+                if (isValidRegistration()) event.invoke(0,validateList[0]?.text.toString(),validateList[3]?.text.toString() )
             }
-            else if (isValidLogin()) event.invoke(it, getAdapterPosition(), itemViewType)
+            else if (isValidLogin()) event.invoke(1,validateList[0]?.text.toString(),validateList[1]?.text.toString())
         }
         return this
     }
@@ -70,20 +75,19 @@ class RegistrationAdapter (private val regDataset: List<String>,private val foot
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is HeaderViewHolder) {
-            if (regDataset[position]=="Регистрация")
+            if (regDataset[position]== context.getString(R.string.reg))
             {
-
                 holder.regRadioButton?.isChecked = true
                 holder.loggingRadioButton?.isChecked = false
-                holder.regRadioButton?.setTextColor(Color.parseColor("#ffffff"))
-                holder.regRadioButton?.setBackgroundColor(Color.parseColor("#0000ff"))
+                holder.regRadioButton?.setTextColor(ContextCompat.getColor(context,R.color.white))
+                holder.regRadioButton?.setBackgroundColor(ContextCompat.getColor(context,R.color.blue))
                 holder.regRadioButton?.setOnCheckedChangeListener(holder)
             }
             else {
                 holder.loggingRadioButton?.isChecked = true
                 holder.regRadioButton?.isChecked = false
-                holder.loggingRadioButton?.setTextColor(Color.parseColor("#ffffff"))
-                holder.loggingRadioButton?.setBackgroundColor(Color.parseColor("#0000ff"))
+                holder.loggingRadioButton?.setTextColor(ContextCompat.getColor(context,R.color.white))
+                holder.loggingRadioButton?.setBackgroundColor(ContextCompat.getColor(context,R.color.blue))
                 holder.loggingRadioButton?.setOnCheckedChangeListener(holder)
             }
 
@@ -110,7 +114,7 @@ class RegistrationAdapter (private val regDataset: List<String>,private val foot
         } else if (holder is FooterViewHolder) {
             holder.onClick(footerClick)
             holder.footerTextView?.text=regDataset[position]
-            holder.footerTextView?.setTextColor(Color.parseColor("#0000ff"))
+            holder.footerTextView?.setTextColor(ContextCompat.getColor(context,R.color.blue))
         }
     }
 
