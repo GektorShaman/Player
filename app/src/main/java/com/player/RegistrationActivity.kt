@@ -1,6 +1,7 @@
 package com.player
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,10 +16,16 @@ class RegistrationActivity : AppCompatActivity() {
 
     private var userDao: UserDao? = null
     private var db: UserDatabase? = null
+    private lateinit var settings: SharedPreferences
 
     var recyclerView:RecyclerView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        settings = getSharedPreferences("PreferencesName", MODE_PRIVATE )
+        if (settings.getBoolean("session",false)) {
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            startActivity(intent)
+        }
         setContentView(R.layout.activity_main)
 
         recyclerView = findViewById(R.id.recyclerView)
@@ -53,8 +60,12 @@ class RegistrationActivity : AppCompatActivity() {
                 }
                 itemOnCheckLog()
             } else {
+
                 lifecycleScope.launch(Dispatchers.IO) {
                     if (userDao?.getUserByLogin(userLogin)?.password == userPassword) {
+                        val editor: SharedPreferences.Editor = settings.edit()
+                        editor.putBoolean("session",true)
+                        editor.commit()
                         val intent = Intent(applicationContext, MainActivity::class.java)
                         startActivity(intent)
                     }
