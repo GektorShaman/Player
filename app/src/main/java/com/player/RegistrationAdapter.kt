@@ -7,6 +7,7 @@ import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.text.method.PasswordTransformationMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,10 +18,11 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputLayout
 import java.util.ArrayList
 import kotlin.coroutines.coroutineContext
 
-class RegistrationAdapter (val context: Context, private val regDataset: List<String>, private val footerClick: (Int, String, String)->Unit, val itemCheck:()->Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class RegistrationAdapter (private val context: Context, private val regDataset: List<String>, private val footerClick: (Int, String, String)->Unit, val itemCheck:()->Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val validateList: ArrayList<EditText?> = ArrayList<EditText?>()
     private val regDataQuantity: Int = 4
@@ -93,21 +95,30 @@ class RegistrationAdapter (val context: Context, private val regDataset: List<St
 
         } else if (holder is ItemViewHolder) {
             holder.editTextView?.hint = regDataset[position]
+            holder.editTextView?.isSingleLine = true
             if (regDataset.size>regDataQuantity) {
                 when (position) {
-                    2 -> holder.editTextView?.inputType =
-                        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-                    3 -> holder.editTextView?.inputType =
-                        InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                    4 -> {
+                    2 -> {
+                        holder.editTextView?.inputType =
+                            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                    }
+                    3 -> {
                         holder.editTextView?.inputType =
                             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                        holder.editTextView?.isEnabled = false
+                        holder.editLayout?.isPasswordVisibilityToggleEnabled = true
+                        }
+                    4 -> {
+                        holder.editTextView?.inputType =
+                            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
+                        holder.editLayout?.isPasswordVisibilityToggleEnabled = true
                     }
                 }
             }
-            else if (position==2) holder.editTextView?.inputType =
-                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            else if (position==2) {
+                holder.editTextView?.inputType =
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                holder.editLayout?.isPasswordVisibilityToggleEnabled = true
+            }
 
             holder.editTextView?.addTextChangedListener(FieldValidation(holder.editTextView!!))
             validateList.add(holder.editTextView)
@@ -142,8 +153,10 @@ class RegistrationAdapter (val context: Context, private val regDataset: List<St
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var editTextView: EditText? = null
+        var editLayout: TextInputLayout? = null
         init {
             editTextView = itemView.findViewById(R.id.editText)
+            editLayout = itemView.findViewById(R.id.editLayout)
         }
     }
 
@@ -167,6 +180,7 @@ class RegistrationAdapter (val context: Context, private val regDataset: List<St
             when (view.inputType) {
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS -> validateEmail()
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD -> validatePassword()
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD -> validateConfirmPassword()
                 else -> validateLogin()
             }
         }
@@ -216,9 +230,9 @@ class RegistrationAdapter (val context: Context, private val regDataset: List<St
     fun validatePassword(): Boolean
     {
         val elementPosition: Int
-        if (validateList.size>2)  elementPosition=2
+        if (validateList.size>2)
+            elementPosition=2
         else elementPosition = 1
-
         if (validateList[elementPosition]?.text.toString().trim().isEmpty())
         {
             validateList[elementPosition]?.error= "Requered Field"
@@ -249,7 +263,6 @@ class RegistrationAdapter (val context: Context, private val regDataset: List<St
             validateList[elementPosition]?.requestFocus()
             return false
         }
-        if (elementPosition==2) validateList[elementPosition+1]?.isEnabled = true
         return true
     }
 
@@ -263,6 +276,7 @@ class RegistrationAdapter (val context: Context, private val regDataset: List<St
         } else if (validateList[2]?.text.toString() != validateList[3]?.text.toString())
         {
             validateList[3]?.error= "Passwords don't match"
+            validateList[3]?.requestFocus()
             return false
         }
         return true

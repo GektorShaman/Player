@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,24 +53,28 @@ class RegistrationActivity : AppCompatActivity() {
         recyclerView?.adapter = RegistrationAdapter(applicationContext,getLogDataset(),footerOnClick,::itemOnCheckReg)
     }
 
-    private val footerOnClick: (Int,String,String) -> Unit= { type, userLogin, userPassword ->
+    private val footerOnClick: (Int,String,String) -> Unit= work@{ type, userLogin, userPassword ->
             if (type ==0)
             {
                 lifecycleScope.launch(Dispatchers.IO) {
                     userDao?.insertUser(User(0, userLogin, userPassword))
                 }
-                itemOnCheckLog()
             } else {
-
+                var isCorrectPassword = false
                 lifecycleScope.launch(Dispatchers.IO) {
-                    if (userDao?.getUserByLogin(userLogin)?.password == userPassword) {
-                        val editor: SharedPreferences.Editor = settings.edit()
-                        editor.putBoolean("session",true)
-                        editor.commit()
-                        val intent = Intent(applicationContext, MainActivity::class.java)
-                        startActivity(intent)
-                    }
+                    isCorrectPassword= userDao?.getUserByLogin(userLogin)?.password == userPassword
                 }
+                if (!isCorrectPassword) {
+                        val toast = Toast.makeText(applicationContext, "Неоотсветсвие пароля и логина", Toast.LENGTH_SHORT)
+                        toast.show()
+                        return@work
+                    }
             }
+            val editor: SharedPreferences.Editor = settings.edit()
+            editor.putBoolean("session", true)
+            editor.commit()
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            startActivity(intent)
+
         }
 }
