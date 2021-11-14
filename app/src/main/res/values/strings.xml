@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">Player</string>
+
+    <string-array name="registration_dataset">
+        <item>Регистрация</item>
+        <item>Логин</item>
+        <item>E-mail</item>
+        <item>Пароль</item>
+        <item>Повторить пароль</item>
+        <item>Зарегистрироваться</item>
+    </string-array>
+
+    <string-array name="logging_dataset">
+        <item>Вход</item>
+        <item>Логин</item>
+        <item>Пароль</item>
+        <item>Войти</item>
+    </string-array>
+
+    <string name="reg">Регистрация</string>
+
+    <string name="logging">Вход</string>
+
 </resources>
