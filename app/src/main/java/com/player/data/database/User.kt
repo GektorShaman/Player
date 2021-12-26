@@ -1,4 +1,4 @@
-package com.player
+package com.player.data.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

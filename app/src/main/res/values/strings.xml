@@ -17,6 +17,49 @@
         <item>Войти</item>
     </string-array>
 
+    <string name="music">0CcQNd8CINkwQfe1RDtGV6?si=b10c12a74c2a4180,2Oehrcv4Kov0SuIgWyQY9e?si=9e72251d60e4485d,0tKcYR2II1VCQWT79i5NrW?si=4ba9b85e202e4987</string>
+
+    <string name="client_id">dadb1f8782b846a488172a4d5501078a</string>
+    <string name="client_secret">d6e32595ec3f46b98ee0eb0c19a3919a</string>
+
+    <string-array name="music_ids">
+        <item>0CcQNd8CINkwQfe1RDtGV6?si=b10c12a74c2a4180</item>
+        <item>2Oehrcv4Kov0SuIgWyQY9e?si=9e72251d60e4485d</item>
+        <item>0tKcYR2II1VCQWT79i5NrW?si=4ba9b85e202e4987</item>
+        <item>0mZriPjLPG9PExNzKQ3NVS?si=8a9cb8e8360b4a0b</item>
+    </string-array>
+
+    <string-array name="songtest_dataset">
+        <item>Animals</item>
+        <item>Nickleback</item>
+        <item>Burn it to the ground</item>
+        <item>Nickleback</item>
+        <item>Far away</item>
+        <item>Nickleback</item>
+        <item>I wanna be a rockstar</item>
+        <item>Nickleback</item>
+        <item>Just for</item>
+        <item>Nickleback</item>
+        <item>Leader of men</item>
+        <item>Nickleback</item>
+        <item>Never gonna be alone</item>
+        <item>Nickleback</item>
+        <item>Rockstar</item>
+        <item>Nickleback</item>
+        <item>Far away</item>
+        <item>Nickleback</item>
+        <item>I wanna be a rockstar</item>
+        <item>Nickleback</item>
+        <item>Just for</item>
+        <item>Nickleback</item>
+        <item>Leader of men</item>
+        <item>Nickleback</item>
+        <item>Never gonna be alone</item>
+        <item>Nickleback</item>
+        <item>Rockstar</item>
+        <item>Nickleback</item>
+    </string-array>
+
     <string name="reg">Регистрация</string>
 
     <string name="logging">Вход</string>

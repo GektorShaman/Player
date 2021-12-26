@@ -1,26 +1,26 @@
-package com.player
+package com.player.helpers
 
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.Color
 import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.text.method.PasswordTransformationMethod
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputLayout
 import java.util.ArrayList
-import kotlin.coroutines.coroutineContext
+import android.widget.Toast
+import com.player.R
+
 
 class RegistrationAdapter (private val context: Context, private val regDataset: List<String>, private val footerClick: (Int, String, String)->Unit, val itemCheck:()->Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -41,15 +41,22 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
     }
 
     private fun isPositionFooter(position: Int): Boolean {
-        return position > regDataset.size-2
+        return position > regDataset.size - 2
     }
 
-    private fun <T : RecyclerView.ViewHolder> T.onClick(event: (type: Int,userLogin:String,userPassword:String) -> Unit): T {
+    private fun <T : RecyclerView.ViewHolder> T.onClick(event: (type: Int, userLogin: String, userPassword: String) -> Unit): T {
         itemView.setOnClickListener {
-            if (validateList.size > 2)  {
-                if (isValidRegistration()) event.invoke(0,validateList[0]?.text.toString(),validateList[3]?.text.toString() )
-            }
-            else if (isValidLogin()) event.invoke(1,validateList[0]?.text.toString(),validateList[1]?.text.toString())
+            if (validateList.size > 2) {
+                if (isValidRegistration()) event.invoke(
+                    0,
+                    validateList[0]?.text.toString(),
+                    validateList[3]?.text.toString()
+                )
+            } else if (isValidLogin()) event.invoke(
+                1,
+                validateList[0]?.text.toString(),
+                validateList[1]?.text.toString()
+            )
         }
         return this
     }
@@ -77,26 +84,39 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is HeaderViewHolder) {
-            if (regDataset[position]== context.getString(R.string.reg))
-            {
+            if (regDataset[position] == context.getString(R.string.reg)) {
                 holder.regRadioButton?.isChecked = true
                 holder.loggingRadioButton?.isChecked = false
-                holder.regRadioButton?.setTextColor(ContextCompat.getColor(context,R.color.white))
-                holder.regRadioButton?.setBackgroundColor(ContextCompat.getColor(context,R.color.blue))
+                holder.regRadioButton?.setTextColor(ContextCompat.getColor(context, R.color.white))
+                holder.regRadioButton?.setBackgroundColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.blue
+                    )
+                )
                 holder.regRadioButton?.setOnCheckedChangeListener(holder)
-            }
-            else {
+            } else {
                 holder.loggingRadioButton?.isChecked = true
                 holder.regRadioButton?.isChecked = false
-                holder.loggingRadioButton?.setTextColor(ContextCompat.getColor(context,R.color.white))
-                holder.loggingRadioButton?.setBackgroundColor(ContextCompat.getColor(context,R.color.blue))
+                holder.loggingRadioButton?.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.white
+                    )
+                )
+                holder.loggingRadioButton?.setBackgroundColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.blue
+                    )
+                )
                 holder.loggingRadioButton?.setOnCheckedChangeListener(holder)
             }
 
         } else if (holder is ItemViewHolder) {
             holder.editTextView?.hint = regDataset[position]
             holder.editTextView?.isSingleLine = true
-            if (regDataset.size>regDataQuantity) {
+            if (regDataset.size > regDataQuantity) {
                 when (position) {
                     2 -> {
                         holder.editTextView?.inputType =
@@ -106,26 +126,29 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
                         holder.editTextView?.inputType =
                             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                         holder.editLayout?.isPasswordVisibilityToggleEnabled = true
-                        }
+                    }
                     4 -> {
                         holder.editTextView?.inputType =
                             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD
                         holder.editLayout?.isPasswordVisibilityToggleEnabled = true
+                        holder.editTextView?.imeOptions = EditorInfo.IME_ACTION_DONE
+                        holder.editTextView?.setOnEditorActionListener(OnEditorActionListenerEdit())
                     }
                 }
-            }
-            else if (position==2) {
+            } else if (position == 2) {
                 holder.editTextView?.inputType =
                     InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
                 holder.editLayout?.isPasswordVisibilityToggleEnabled = true
+                holder.editTextView?.imeOptions = EditorInfo.IME_ACTION_DONE
+                holder.editTextView?.setOnEditorActionListener(OnEditorActionListenerEdit())
             }
 
             holder.editTextView?.addTextChangedListener(FieldValidation(holder.editTextView!!))
             validateList.add(holder.editTextView)
         } else if (holder is FooterViewHolder) {
             holder.onClick(footerClick)
-            holder.footerTextView?.text=regDataset[position]
-            holder.footerTextView?.setTextColor(ContextCompat.getColor(context,R.color.blue))
+            holder.footerTextView?.text = regDataset[position]
+            holder.footerTextView?.setTextColor(ContextCompat.getColor(context, R.color.blue))
         }
     }
 
@@ -136,14 +159,14 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
     }
 
 
-    inner class HeaderViewHolder (itemView: View) : RecyclerView.ViewHolder(itemView)
-        ,CompoundButton.OnCheckedChangeListener{
+    inner class HeaderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
+        CompoundButton.OnCheckedChangeListener {
         var loggingRadioButton: RadioButton? = null
         var regRadioButton: RadioButton? = null
 
         init {
-            loggingRadioButton= itemView.findViewById(R.id.log)
-            regRadioButton= itemView.findViewById(R.id.reg)
+            loggingRadioButton = itemView.findViewById(R.id.log)
+            regRadioButton = itemView.findViewById(R.id.reg)
         }
 
         override fun onCheckedChanged(p0: CompoundButton?, p1: Boolean) {
@@ -154,6 +177,7 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var editTextView: EditText? = null
         var editLayout: TextInputLayout? = null
+
         init {
             editTextView = itemView.findViewById(R.id.editText)
             editLayout = itemView.findViewById(R.id.editLayout)
@@ -162,6 +186,7 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
 
     inner class FooterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var footerTextView: TextView? = null
+
         init {
             footerTextView = itemView.findViewById(R.id.textViewFooter)
         }
@@ -177,30 +202,47 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
         override fun afterTextChanged(s: Editable?) {}
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            when (view.inputType) {
+            /*when (view.inputType) {
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS -> validateEmail()
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD -> validatePassword()
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD -> validateConfirmPassword()
                 else -> validateLogin()
-            }
+            }*/
         }
     }
 
-    fun isValidRegistration():Boolean
+    inner class OnEditorActionListenerEdit() : TextView.OnEditorActionListener
     {
-        return (validateEmail() and validatePassword() and validateConfirmPassword() and validateLogin())
+        override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (validateList.size > 2) {
+                    if (isValidRegistration()) footerClick(
+                        0,
+                        validateList[0]?.text.toString(),
+                        validateList[3]?.text.toString()
+                    )
+                } else if (isValidLogin()) footerClick(
+                    1,
+                    validateList[0]?.text.toString(),
+                    validateList[1]?.text.toString()
+                )
+            }
+            return false
+        }
     }
 
-    fun isValidLogin(): Boolean
-    {
+    fun isValidRegistration(): Boolean {
+        return (validateEmail() and validatePassword() and validateConfirmPasswordWhenReg() and validateLogin())
+    }
+
+    fun isValidLogin(): Boolean {
         return (validatePassword() and validateLogin())
     }
 
-    fun validateLogin (): Boolean {
+    fun validateLogin(): Boolean {
 
-        if (validateList[0]?.text.toString().trim().isEmpty())
-        {
-            validateList[0]?.error= "Requered Field"
+        if (validateList[0]?.text.toString().trim().isEmpty()) {
+            validateList[0]?.error = "Requered Field"
             validateList[0]?.requestFocus()
             return false
         }
@@ -208,7 +250,7 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
     }
 
     fun validateEmail(): Boolean {
-        if (validateList.size>2) {
+        if (validateList.size > 2) {
             if (validateList[1]?.text.toString().trim().isEmpty()) {
                 validateList[1]?.error = "Requered Field"
                 validateList[1]?.requestFocus()
@@ -224,58 +266,59 @@ class RegistrationAdapter (private val context: Context, private val regDataset:
     }
 
     private fun String.isEmailValid(): Boolean {
-        return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this).matches()
+        return !TextUtils.isEmpty(this) && android.util.Patterns.EMAIL_ADDRESS.matcher(this)
+            .matches()
     }
 
-    fun validatePassword(): Boolean
-    {
+    fun validatePassword(): Boolean {
         val elementPosition: Int
-        if (validateList.size>2)
-            elementPosition=2
+        if (validateList.size > 2)
+            elementPosition = 2
         else elementPosition = 1
-        if (validateList[elementPosition]?.text.toString().trim().isEmpty())
-        {
-            validateList[elementPosition]?.error= "Requered Field"
+        if (validateList[elementPosition]?.text.toString().trim().isEmpty()) {
+            validateList[elementPosition]?.error = "Requered Field"
             validateList[elementPosition]?.requestFocus()
             return false
-        } else if (validateList[elementPosition]?.text.toString().length < 6)
-        {
-            validateList[elementPosition]?.error= "Password must be more than 6 symbols"
+        } else if (validateList[elementPosition]?.text.toString().length < 6) {
+            validateList[elementPosition]?.error = "Password must be more than 6 symbols"
             validateList[elementPosition]?.requestFocus()
             return false
-        } else if (!validateList[elementPosition]?.text.toString().contains("[0-9]".toRegex()))
-        {
-            validateList[elementPosition]?.error= "Password must have at least 1 digit"
+        } else if (!validateList[elementPosition]?.text.toString().contains("[0-9]".toRegex())) {
+            validateList[elementPosition]?.error = "Password must have at least 1 digit"
             validateList[elementPosition]?.requestFocus()
             return false
-        } else if (!validateList[elementPosition]?.text.toString().contains("[A-Z]".toRegex()))
-        {
-            validateList[elementPosition]?.error= "Password must have upper case"
+        } else if (!validateList[elementPosition]?.text.toString().contains("[A-Z]".toRegex())) {
+            validateList[elementPosition]?.error = "Password must have upper case"
             validateList[elementPosition]?.requestFocus()
             return false
         } else if (!validateList[elementPosition]?.text.toString().contains("[a-z]".toRegex())) {
             validateList[elementPosition]?.error = "Password must have lower case"
             validateList[elementPosition]?.requestFocus()
             return false
-        } else if (!validateList[elementPosition]?.text.toString().contains("[!-/]".toRegex()))
-        {
-            validateList[elementPosition]?.error= "Password must have special symbols"
+        } else if (!validateList[elementPosition]?.text.toString().contains("[!-/]".toRegex())) {
+            validateList[elementPosition]?.error = "Password must have special symbols"
             validateList[elementPosition]?.requestFocus()
             return false
         }
         return true
     }
 
-    private fun validateConfirmPassword(): Boolean
-    {
-        if (validateList[3]?.text.toString().trim().isEmpty())
-        {
-            validateList[3]?.error= "Requered Field"
+    private fun validateConfirmPassword(): Boolean {
+        if (validateList[3]?.text.toString().trim().isEmpty()) {
+            validateList[3]?.error = "Requered Field"
             validateList[3]?.requestFocus()
             return false
-        } else if (validateList[2]?.text.toString() != validateList[3]?.text.toString())
-        {
-            validateList[3]?.error= "Passwords don't match"
+        }
+        return true
+    }
+
+    private fun validateConfirmPasswordWhenReg(): Boolean {
+        if (validateList[3]?.text.toString().trim().isEmpty()) {
+            validateList[3]?.error = "Requered Field"
+            validateList[3]?.requestFocus()
+            return false
+        } else if (validateList[2]?.text.toString() != validateList[3]?.text.toString()) {
+            validateList[3]?.error = "Passwords don't match"
             validateList[3]?.requestFocus()
             return false
         }
